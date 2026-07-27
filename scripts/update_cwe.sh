@@ -4,7 +4,7 @@ set -euo pipefail
 # Usage:
 #   bash scripts/update_cwe.sh VERSION
 #     - downloads and converts CWE data for the given version.
-#     - saves to assets/cwe/cwe_<VERSION>_<DATE>.csv
+#     - saves to assets/cwe/cwe_<VERSION>_<DATE>.tsv
 
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)" || {
   echo "Error: not inside a git repository." >&2
@@ -25,5 +25,5 @@ curl -fS \
   -H "User-Agent: cwe-version-extractor/1.0 (+https://github.com/csaf-rs/cwe)" \
   https://cwe.mitre.org/data/xml/cwec_${VERSION}.xml.zip \
   | funzip \
-  | xsltproc scripts/convert_cwe_to_csv.xslt - \
-  | (read -r header; sort -n > "${output_dir}/cwe_${header}.csv")
+  | xsltproc scripts/convert_cwe_to_tsv.xslt - \
+  | (read -r header; sort -n > "${output_dir}/cwe_${header}.tsv")
