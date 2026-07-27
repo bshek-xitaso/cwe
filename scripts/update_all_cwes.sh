@@ -13,5 +13,5 @@ cd "$REPO_ROOT"
 
 python3 scripts/extract_cwe_versions.py \
   | while IFS= read -r version; do
-    bash scripts/update_cwe.sh "v${version}"
+    bash scripts/update_cwe.sh "${version}"
   done

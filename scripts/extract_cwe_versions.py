@@ -2,7 +2,7 @@
 """
 Usage:
   python3 scripts/extract_cwe_versions.py
-    - prints one CWE version per line (e.g. 4.20).
+    - prints one CWE version per line (e.g. v4.20).
 
   python3 scripts/extract_cwe_versions.py --json
     - prints versions as a JSON array.
@@ -20,7 +20,7 @@ from urllib.request import Request, urlopen
 
 
 DEFAULT_URL = "https://cwe.mitre.org/data/archive.html"
-VERSION_LINK_RE = re.compile(r"/data/xml/cwec_v([0-9]+(?:\.[0-9]+)*)\.xml\.zip$")
+VERSION_LINK_RE = re.compile(r"/data/xml/cwec_(v[0-9]+(?:\.[0-9]+)*)\.xml\.zip$")
 
 
 class VersionLinkParser(HTMLParser):

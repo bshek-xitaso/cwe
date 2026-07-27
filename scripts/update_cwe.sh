@@ -3,8 +3,10 @@ set -euo pipefail
 
 # Usage:
 #   bash scripts/update_cwe.sh VERSION
-#     - downloads and converts CWE data for the given version.
-#     - saves to assets/cwe/cwe_<VERSION>_<DATE>.tsv
+#     - downloads CWE data for the given version using the URL https://cwe.mitre.org/data/xml/cwec_<VERSION>.xml.zip
+#     - converts it to TSV and saves to assets/cwe/cwe_<XML_VERSION>_<XML_DATE>.tsv
+#     - the output filename is derived from the XML Version/Catalog_Version
+#       and Date/Catalog_Date attributes, NOT from the VERSION argument
 
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)" || {
   echo "Error: not inside a git repository." >&2
