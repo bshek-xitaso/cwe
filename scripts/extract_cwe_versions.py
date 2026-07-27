@@ -1,4 +1,12 @@
 #!/usr/bin/env python3
+"""
+Usage:
+  python3 scripts/extract_cwe_versions.py
+    - prints one CWE version per line (e.g. 4.20).
+
+  python3 scripts/extract_cwe_versions.py --json
+    - prints versions as a JSON array.
+"""
 
 from __future__ import annotations
 
