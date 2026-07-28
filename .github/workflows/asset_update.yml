@@ -1,0 +1,40 @@
+name: Update CWE Assets
+
+on:
+  workflow_dispatch:
+
+jobs:
+  update-cwe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.x"
+
+      - name: Install update dependencies
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends xsltproc unzip
+
+      - name: Update CWE data
+        run: bash scripts/update_all_cwes.sh --env linux
+
+      - name: Check for changes
+        id: check
+        run: |
+          if git diff --quiet assets/; then
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+          fi
+
+#      - name: Create Pull Request
+#        if: steps.check.outputs.has_changes == 'true'
+#        uses: peter-evans/create-pull-request@v8
+#        with:
+#          commit-message: "chore: update CWE assets"
+#          title: "chore: update CWE assets"
+#          body: "Automated CWE asset update from weekly schedule"
+#          branch: "chore/update-cwe-assets"
