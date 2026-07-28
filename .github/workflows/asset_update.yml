@@ -19,7 +19,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y --no-install-recommends xsltproc unzip
 
       - name: Update CWE data
-        run: bash scripts/update_all_cwes.sh
+        run: bash scripts/update_all_cwes.sh --env linux
 
       - name: Check for changes
         id: check
