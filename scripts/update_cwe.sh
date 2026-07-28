@@ -23,9 +23,42 @@ VERSION=$1
 output_dir="assets/cwe"
 mkdir -p "$output_dir"
 
+# temporary directory for downloads and validation
+temp_dir=$(mktemp -d)
+trap "rm -rf $temp_dir" EXIT
+
+# Download the CWE data
 curl -fS \
   -H "User-Agent: cwe-version-extractor/1.0 (+https://github.com/csaf-rs/cwe)" \
   https://cwe.mitre.org/data/xml/cwec_${VERSION}.xml.zip \
-  | funzip \
-  | xsltproc scripts/convert_cwe_to_tsv.xslt - \
+  -o "$temp_dir/cwec.zip"
+
+# Validate uncompressed size to detect XML bombing attacks (limit set to 25MB)
+max_size=$((25 * 1024 * 1024))
+uncompressed_size=$(unzip -l "$temp_dir/cwec.zip" | awk 'NR==2 {print $1}')
+
+if [[ $uncompressed_size -gt $max_size ]]; then
+  echo "Error: Uncompressed XML exceeds size limit (${uncompressed_size} > ${max_size})" >&2
+  exit 1
+fi
+
+# Extract and process with hardened xsltproc flags
+# Flags:
+#   --noxinclude: disable XInclude attacks
+#   --nonet: disable network access
+#   --nopython: disable Python extensions
+#   --nomodule: disable dynamic module loading
+#   --nodefdtd: disable DTD loading (against entity expansion attacks)
+unzip -p "$temp_dir/cwec.zip" \
+  | (
+    ulimit -v 100000  # Limit virtual memory to 100MB
+    timeout 60 # Limit time to 60s
+    xsltproc \
+      --noxinclude \
+      --nonet \
+      --nopython \
+      --nomodule \
+      --nodefdtd \
+      scripts/convert_cwe_to_tsv.xslt -
+  ) \
   | (read -r header; sort -n > "${output_dir}/cwe_${header}.tsv")
